@@ -1,0 +1,167 @@
+# This program creates a table that reports how many compare each counting
+# algorithm completes, compared to how large the input n is
+
+# BJC, Original Program, 9_15_23
+
+import sys
+import math
+import random
+
+class Counter:
+    def __init__(self):
+        self.compares = 0
+
+    def getCount(self):
+        return self.compares
+
+def CreateRandomList(size):
+    A = []
+    for i in range(size):
+        r = random.randrange(0, size)
+        A.append(r)
+    return A
+
+# Swaps first and last index
+def CreateMostlySortedList(size):
+    A = CreateRandomList(size)
+    A.sort()
+    A[0], A[-1] = A[-1], A[0]
+    return A
+
+def BubbleSortModified(A, c, mod):
+    switched = True
+    while switched:
+        switched = False
+        for i in range(len(A) - 1):
+            c.compares += 1
+            if A[i] > A[i + 1]:
+                c.compares += 1
+                A[i], A[i + 1] = A[i + 1], A[i]
+                switched = True
+        # Implementing Shaker Sort Function
+        if mod:
+            for i in range(len(A) - 2, -1, -1):
+                if A[i] > A[i + 1]:
+                    A[i], A[i + 1] = A[i + 1], A[i]
+                    switched = True
+    return A
+
+def BubbleSort(A, c):
+    BubbleSortModified(A, c, False)
+    return c.getCount()
+
+def ShakerSort(A, c):
+    BubbleSortModified(A, c, True)
+    return c.getCount()
+
+def CountingSort(A, c):
+    c.compares = len(A)
+
+    F = [0] * len(A)
+    for v in A:
+        F[v] += 1
+    k = 0
+    for i in range(len(F)):
+        reps = F[i]
+        value = i
+        for j in range(reps):
+            A[k] = value
+            k += 1
+    return A
+
+def MergeSort(A, c):
+    if len(A) <= 1:
+        return
+
+    L = A[0:len(A) // 2]
+    R = A[len(A) // 2:len(A)]
+
+    MergeSort(L, c)
+    MergeSort(R, c)
+    k = 0
+    i = 0
+    j = 0
+    while i < len(L) and j < len(R):
+        c.compares += 1
+        if L[i] <= R[j]:
+            A[k] = L[i]
+            k += 1
+            i += 1
+        else:
+            A[k] = R[j]
+            k += 1
+            j += 1
+    while i < len(L):
+        A[k] = L[i]
+        k += 1
+        i += 1
+    while j < len(R):
+        A[k] = R[j]
+        k += 1
+        j += 1
+
+def QuickSortRecursive(A, c, low, high, mod):
+    if high - low <= 0:
+        return
+    lmgt = low + 1
+    if mod:
+        mid = (low + high) // 2
+        A[low], A[mid] = A[mid], A[low]
+    for i in range(low + 1, high + 1):
+        c.compares += 1
+        if A[i] < A[low]:
+            A[i], A[lmgt] = A[lmgt], A[i]
+            lmgt += 1
+    pivotIndex = lmgt - 1
+    A[low], A[pivotIndex] = A[pivotIndex], A[low]
+    QuickSortRecursive(A, c, low, pivotIndex - 1, mod)
+    QuickSortRecursive(A, c, pivotIndex + 1, high, mod)
+
+def QuickSort(A, c):
+    QuickSortRecursive(A, c, 0, len(A) - 1, False)
+    return c.getCount()
+
+def ModifiedQuickSort(A, c):
+    QuickSortRecursive(A, c, 0, len(A) - 1, True)
+    return c.getCount()
+
+def main():
+    sys.setrecursionlimit(5000)
+    sorting_algorithms = [BubbleSort, ShakerSort, CountingSort, MergeSort, QuickSort, ModifiedQuickSort]
+
+    config = {
+        "min_size": 3,
+        "max_size": 13,
+    }
+
+    print("\tBubble\tShaker\tCount\tMerge\tQuick\tMQuick")
+
+    for size in range(config["min_size"], config["max_size"]):
+        data_size = 2 ** size
+        print(f"{size}\t", end="")
+
+        data = CreateMostlySortedList(data_size)
+        #data = CreateRandomList(data_size)
+
+        for sorting_algorithm in sorting_algorithms:
+            try:
+                sorted_data = sorted(data)
+                c = Counter()
+
+                sorting_algorithm(data, c)
+                assert data == sorted_data  # Check if the data is sorted correctly
+
+                if c.getCount() == 0:
+                    print("Error\t", end="")
+                else:
+                    print(f"{math.log(c.getCount(), 2):.2f}\t", end="")
+            except AssertionError:
+                print("Error\t", end="")
+            except Exception as e:
+                print(f"Error: {e}\t", end="")
+
+        print()
+
+if __name__ == "__main__":
+    main()
+
