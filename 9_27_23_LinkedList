@@ -1,0 +1,70 @@
+# BJC, Original Author
+# 9/27/2023
+
+# Creation of a Linked List
+class Node:
+    def __init__(self, item, n):
+        self.mItem = item
+        self.mNext = n
+
+class Bag:
+    def __init__(self):
+        mFirst = None
+
+    def Insert(self, item):
+        self.mFirst = Node(item,self.mFirst)
+        # exacly as before...
+        #n = Node(item, None)
+        #n.mNext = mFirst
+        #mFirst = n
+
+    def Exists(self,item):
+        current = self.mFirst
+        while current != None:
+            if current.mItem == item:
+                return True
+            current = current.mNext
+        return False
+
+    def Size(self):
+        counter = 0
+        current = self.mFirst
+        while current != None:
+            counter += 1
+            current = current.mNext
+        return counter
+
+    def Retrieve(self,item):
+        # what if object is empty?
+        current = self.mFirst
+        while current != None:
+            if current.mItem = item:
+                return current.mItem
+            current = current.mNext
+        return None
+
+    def __iter__(self):
+        current = self.mFirst
+        while current != None:
+            yield current.mItem
+            current = current.mNext
+
+    def Delete(self, dummyStudent):
+        current = self.mFirst
+        previous = None
+        while current is not None:
+            if current.mItem == dummyStudent:
+                if previous is not None:
+                    previous.mNext = current.mNext
+                else:
+                    self.mFirst = current.mNext
+                return True
+            previous = current
+            current = current.mNext
+        return False
+
+def main():
+    b = Bag()
+    b.Insert("Bob")
+    b.Insert("Sally")
+
